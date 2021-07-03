@@ -75,7 +75,7 @@ try:
                 # Pause stopwatch
                 paused = not paused
                 if paused:
-                    # Running -> Pause: record period time
+                    # Running -> Paused: record period time
                     periods.append(elapsed_time)
                 else:
                     # Paused -> Running: new start time for the new
