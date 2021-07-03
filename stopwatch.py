@@ -62,7 +62,7 @@ try:
         if is_data():
             # Read key
             c = sys.stdin.read(1)
-            if c == 'q':  # Quit
+            if c == 's':  # Save and Quit
                 # Write total time to current date file and exit
                 # program
                 today_str = datetime.today().strftime('%Y-%m-%d')
@@ -70,6 +70,9 @@ try:
                 with open("times/{}.txt".format(today_str), "a") as file_object:
                     # Append 'hello' at the end of file
                     file_object.write(seconds_to_string(total_time)+'\n')
+                break
+            if c == 'q':  # Quit
+                # Exit program
                 break
             if c == 'p':  # Pause
                 # Pause stopwatch
