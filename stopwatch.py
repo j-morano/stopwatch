@@ -5,6 +5,7 @@ import select
 import tty
 import termios
 import time
+import curses
 from datetime import datetime
 
 
@@ -14,30 +15,38 @@ def seconds_to_string(sec):
     sec = sec % 60
     hours = mins // 60
     mins = mins % 60
-    time_str = "{0}:{1}:{2}".format(int(hours), int(mins), int(sec))
+    time_str = "{:02d}:{:02d}:{:02d}".format(int(hours), int(mins), int(sec))
     return time_str
 
 
-def time_convert(sec):
-    """Convert time in seconds to h:m:s format and print it
-    overwritting previous line.
+def time_convert(stdscr, sec):
+    """Convert time in seconds to hh:mm:ss format and print it
+    overwritting previous line(s).
     """
-    time_str = " {}   ".format(seconds_to_string(sec))
-    sys.stdout.write('\r'+str(time_str))
-    sys.stdout.flush()
+    time_str =  "############\n"
+    time_str += "# {} #\n".format(seconds_to_string(sec))
+    time_str +=  "############\n"
+    # time_str +=  "\n (q)uit, (s)ave and quit, (p)ause\n"
+    stdscr.addstr(0, 0, time_str)
+    stdscr.refresh()
 
 
 def is_data():
     return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
 
 
-
+# Initial state
 paused = False
 start_time = time.time()
 elapsed_time = 0
 total_time = 0
-
 periods = []
+
+# Curses initialization
+stdscr = curses.initscr()
+curses.noecho()
+curses.cbreak()
+
 
 old_settings = termios.tcgetattr(sys.stdin)
 try:
@@ -56,7 +65,7 @@ try:
             for p in periods:
                 previous_time += p
             total_time = previous_time+elapsed_time
-            time_convert(total_time)
+            time_convert(stdscr, total_time)
 
         # Get user input
         if is_data():
@@ -85,5 +94,10 @@ try:
                     # period
                     start_time = time.time()
 finally:
+    # Close termios
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+    # Close curses
+    curses.echo()
+    curses.nocbreak()
+    curses.endwin()
 
